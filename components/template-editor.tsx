@@ -8,7 +8,7 @@ import { Textarea } from "@/components/ui/textarea"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Badge } from "@/components/ui/badge"
-import { ArrowLeft, Save, Plus, Trash2, Eye, EyeOff } from "lucide-react"
+import { ArrowLeft, Save, Plus, Trash2, Eye, EyeOff, Sparkles, RefreshCw } from "lucide-react"
 import { useTemplates } from "@/hooks/use-templates"
 import { type TemplateField, templateManager } from "@/lib/template-manager"
 import { useToast } from "@/hooks/use-toast"
@@ -26,6 +26,8 @@ export function TemplateEditor({ templateId, onSave, onCancel }: TemplateEditorP
   const [fields, setFields] = useState<TemplateField[]>([])
   const [showPreview, setShowPreview] = useState(false)
   const [saving, setSaving] = useState(false)
+  const [generatingAI, setGeneratingAI] = useState(false)
+  const [aiGeneratedContent, setAiGeneratedContent] = useState("")
   const { saveTemplate, updateTemplate } = useTemplates()
   const { toast } = useToast()
 
@@ -42,6 +44,61 @@ export function TemplateEditor({ templateId, onSave, onCancel }: TemplateEditorP
       }
     }
   }, [templateId])
+
+  const generateWithAI = async () => {
+    if (!title.trim()) {
+      toast({
+        title: "Título requerido",
+        description: "Ingrese un título para generar contenido con IA",
+        variant: "destructive",
+      })
+      return
+    }
+
+    setGeneratingAI(true)
+    try {
+      const response = await fetch("/api/generate-template", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ title: title.trim() }),
+      })
+
+      if (!response.ok) {
+        throw new Error("Error al generar contenido")
+      }
+
+      const data = await response.json()
+      setAiGeneratedContent(data.content)
+
+      toast({
+        title: "Contenido generado",
+        description: "El contenido ha sido generado con IA. Puede editarlo o usarlo directamente.",
+      })
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "No se pudo generar el contenido con IA",
+        variant: "destructive",
+      })
+    } finally {
+      setGeneratingAI(false)
+    }
+  }
+
+  const useAIContent = () => {
+    setContent(aiGeneratedContent)
+    setAiGeneratedContent("")
+    toast({
+      title: "Contenido aplicado",
+      description: "El contenido generado por IA ha sido aplicado al documento",
+    })
+  }
+
+  const discardAIContent = () => {
+    setAiGeneratedContent("")
+  }
 
   const addField = () => {
     const newField: TemplateField = {
@@ -167,15 +224,72 @@ export function TemplateEditor({ templateId, onSave, onCancel }: TemplateEditorP
             </div>
             <div className="space-y-2">
               <Label htmlFor="title">Título del documento</Label>
-              <Input
-                id="title"
-                value={title}
-                onChange={(e) => setTitle(e.target.value)}
-                placeholder="Ej: CERTIFICADO DE ASISTENCIA"
-              />
+              <div className="flex gap-2">
+                <Input
+                  id="title"
+                  value={title}
+                  onChange={(e) => setTitle(e.target.value)}
+                  placeholder="Ej: CERTIFICADO DE ASISTENCIA"
+                  className="flex-1"
+                />
+                <Button
+                  onClick={generateWithAI}
+                  disabled={generatingAI || !title.trim()}
+                  variant="outline"
+                  size="sm"
+                  className="shrink-0 bg-transparent"
+                >
+                  {generatingAI ? <RefreshCw className="w-4 h-4 animate-spin" /> : <Sparkles className="w-4 h-4" />}
+                </Button>
+              </div>
+              <p className="text-xs text-gray-500">Ingrese un título y haga clic en ✨ para generar contenido con IA</p>
             </div>
           </CardContent>
         </Card>
+
+        {aiGeneratedContent && (
+          <Card className="border-blue-200 bg-blue-50">
+            <CardHeader>
+              <CardTitle className="text-blue-900 flex items-center gap-2">
+                <Sparkles className="w-5 h-5" />
+                Contenido Generado por IA
+              </CardTitle>
+              <CardDescription className="text-blue-700">
+                Revise y edite el contenido generado antes de usarlo
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <Textarea
+                value={aiGeneratedContent}
+                onChange={(e) => setAiGeneratedContent(e.target.value)}
+                className="min-h-[150px] bg-white border-blue-200 focus:border-blue-400"
+                placeholder="Contenido generado por IA..."
+              />
+              <div className="flex gap-2 flex-wrap">
+                <Button onClick={useAIContent} size="sm" className="bg-blue-600 hover:bg-blue-700">
+                  Usar este contenido
+                </Button>
+                <Button onClick={generateWithAI} disabled={generatingAI || !title.trim()} variant="outline" size="sm">
+                  {generatingAI ? (
+                    <>
+                      <RefreshCw className="w-4 h-4 mr-2 animate-spin" />
+                      Regenerando...
+                    </>
+                  ) : (
+                    <>
+                      <RefreshCw className="w-4 h-4 mr-2" />
+                      Regenerar
+                    </>
+                  )}
+                </Button>
+                <Button onClick={discardAIContent} variant="outline" size="sm">
+                  Descartar
+                </Button>
+              </div>
+              <p className="text-xs text-blue-600">Puede editar el texto generado antes de aplicarlo al documento</p>
+            </CardContent>
+          </Card>
+        )}
 
         {/* Campos dinámicos */}
         <Card>

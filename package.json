@@ -9,10 +9,12 @@
     "start": "next start"
   },
   "dependencies": {
+    "@ai-sdk/openai": "latest",
     "@radix-ui/react-alert-dialog": "^1.1.2",
     "@radix-ui/react-label": "^2.1.0",
     "@radix-ui/react-select": "^2.1.2",
     "@radix-ui/react-toast": "^1.2.2",
+    "ai": "latest",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "jspdf": "latest",
@@ -23,7 +25,8 @@
     "react-dom": "^19",
     "react-hot-toast": "latest",
     "tailwind-merge": "^2.5.5",
-    "tailwindcss-animate": "^1.0.7"
+    "tailwindcss-animate": "^1.0.7",
+    "zod": "latest"
   },
   "devDependencies": {
     "@types/node": "^22",
