@@ -1,0 +1,28 @@
+{
+  "name": "Espacio Kinesio - Generador PDF",
+  "short_name": "Espacio Kinesio",
+  "description": "Aplicación para generar documentos PDF médicos del consultorio de kinesiología",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#16a34a",
+  "orientation": "portrait",
+  "icons": [
+    {
+      "src": "/images/logo-espacio-kinesio.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/images/logo-espacio-kinesio.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ],
+  "categories": ["medical", "productivity", "utilities"],
+  "lang": "es-AR",
+  "scope": "/",
+  "prefer_related_applications": false
+}
