@@ -4,6 +4,16 @@ import { type NextRequest, NextResponse } from "next/server"
 
 export async function POST(request: NextRequest) {
   try {
+    if (!process.env.OPENAI_API_KEY) {
+      console.error("OPENAI_API_KEY environment variable is not set")
+      return NextResponse.json(
+        {
+          error: "La funcionalidad de IA no está configurada. Contacte al administrador.",
+        },
+        { status: 500 },
+      )
+    }
+
     const { title } = await request.json()
 
     if (!title || typeof title !== "string") {
@@ -11,7 +21,9 @@ export async function POST(request: NextRequest) {
     }
 
     const { text } = await generateText({
-      model: openai("gpt-4o-mini"),
+      model: openai("gpt-4o-mini", {
+        apiKey: process.env.OPENAI_API_KEY,
+      }),
       prompt: `Eres un asistente especializado en crear documentos médicos para un consultorio de kinesiología llamado "Espacio Kinesio".
 
 Título del documento: "${title}"
@@ -41,6 +53,21 @@ Genera SOLO el contenido del documento, sin explicaciones adicionales.`,
     return NextResponse.json({ content: text })
   } catch (error) {
     console.error("Error generating template:", error)
-    return NextResponse.json({ error: "Error al generar el contenido de la plantilla" }, { status: 500 })
+
+    if (error instanceof Error && error.message.includes("API key")) {
+      return NextResponse.json(
+        {
+          error: "Error de configuración de IA. Verifique la configuración de la API key.",
+        },
+        { status: 500 },
+      )
+    }
+
+    return NextResponse.json(
+      {
+        error: "Error al generar el contenido de la plantilla. Intente nuevamente.",
+      },
+      { status: 500 },
+    )
   }
 }
