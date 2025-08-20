@@ -1,6 +1,6 @@
 {
-  "name": "Espacio Kinesio - Generador PDF",
-  "short_name": "Espacio Kinesio",
+  "name": "PDF generator App",
+  "short_name": "PDF generator",
   "description": "Aplicación para generar documentos PDF médicos del consultorio de kinesiología",
   "start_url": "/",
   "display": "standalone",

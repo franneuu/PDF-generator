@@ -5,7 +5,7 @@ import { ThemeProvider } from "next-themes"
 import { Toaster } from "react-hot-toast"
 
 export const metadata: Metadata = {
-  title: "Espacio Kinesio",
+  title: "PDF generator App",
   description: "Generador de documentos PDF para consultorio de kinesiología",
   generator: "v0.app",
 }
@@ -22,7 +22,7 @@ export default function RootLayout({
         <meta name="theme-color" content="#16a34a" />
         <meta name="apple-mobile-web-app-capable" content="yes" />
         <meta name="apple-mobile-web-app-status-bar-style" content="default" />
-        <meta name="apple-mobile-web-app-title" content="Espacio Kinesio" />
+        <meta name="apple-mobile-web-app-title" content="PDF generator App" />
         <meta name="description" content="Generador de documentos PDF para consultorio de kinesiología" />
         <link rel="manifest" href="/manifest.json" />
         <link rel="apple-touch-icon" href="/images/logo-espacio-kinesio.png" />
