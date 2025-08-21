@@ -45,13 +45,22 @@ class TemplateManager {
       const stored = localStorage.getItem(this.storageKey)
       if (!stored) {
         // Inicializar con plantilla por defecto
-        this.saveTemplates([DEFAULT_TEMPLATE])
-        return [DEFAULT_TEMPLATE]
+        const defaultTemplates = [DEFAULT_TEMPLATE]
+        this.saveTemplates(defaultTemplates)
+        return defaultTemplates
       }
-      return JSON.parse(stored)
+      const templates = JSON.parse(stored)
+      if (templates.length === 0) {
+        const defaultTemplates = [DEFAULT_TEMPLATE]
+        this.saveTemplates(defaultTemplates)
+        return defaultTemplates
+      }
+      return templates
     } catch (error) {
       console.error("Error loading templates:", error)
-      return [DEFAULT_TEMPLATE]
+      const defaultTemplates = [DEFAULT_TEMPLATE]
+      this.saveTemplates(defaultTemplates)
+      return defaultTemplates
     }
   }
 
@@ -59,7 +68,14 @@ class TemplateManager {
     if (typeof window === "undefined") return
 
     try {
+      console.log("[v0] Saving templates to localStorage:", templates.length)
       localStorage.setItem(this.storageKey, JSON.stringify(templates))
+      const saved = localStorage.getItem(this.storageKey)
+      if (saved) {
+        console.log("[v0] Templates saved successfully")
+      } else {
+        console.error("[v0] Failed to save templates to localStorage")
+      }
     } catch (error) {
       console.error("Error saving templates:", error)
     }
@@ -73,13 +89,23 @@ class TemplateManager {
     const templates = this.getTemplates()
     const newTemplate: Template = {
       ...template,
-      id: Date.now().toString(),
+      id: `template-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`, // ID más único
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
     }
 
+    console.log("[v0] Creating new template:", newTemplate.name)
     templates.push(newTemplate)
     this.saveTemplates(templates)
+
+    const savedTemplates = this.getTemplates()
+    const found = savedTemplates.find((t) => t.id === newTemplate.id)
+    if (found) {
+      console.log("[v0] Template created and saved successfully")
+    } else {
+      console.error("[v0] Template creation failed - not found after save")
+    }
+
     return newTemplate
   }
 
